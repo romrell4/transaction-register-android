@@ -36,7 +36,6 @@ public abstract class TXRecyclerAdapter<DataType> extends RecyclerView.Adapter<T
 
 	@Override
 	public int getItemCount() {
-		Log.d(TAG, "getItemCount: Something");
 		return list == null ? 0 : list.size();
 	}
 }
