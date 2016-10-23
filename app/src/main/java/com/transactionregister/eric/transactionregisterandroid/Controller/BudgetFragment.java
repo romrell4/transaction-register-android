@@ -2,6 +2,7 @@ package com.transactionregister.eric.transactionregisterandroid.Controller;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,14 +10,23 @@ import android.widget.TextView;
 
 import com.transactionregister.eric.transactionregisterandroid.Model.Category;
 import com.transactionregister.eric.transactionregisterandroid.R;
-import com.transactionregister.eric.transactionregisterandroid.Support.TXRecyclerAdapter;
+import com.transactionregister.eric.transactionregisterandroid.Service.Client;
+import com.transactionregister.eric.transactionregisterandroid.Support.TXActivity;
+import com.transactionregister.eric.transactionregisterandroid.Support.TXApiGenerator;
+import com.transactionregister.eric.transactionregisterandroid.Support.TXCallback;
 import com.transactionregister.eric.transactionregisterandroid.Support.TXFragment;
+import com.transactionregister.eric.transactionregisterandroid.Support.TXRecyclerAdapter;
 import com.transactionregister.eric.transactionregisterandroid.Support.TXRecyclerView;
 import com.transactionregister.eric.transactionregisterandroid.Support.TXViewHolder;
 
 import java.text.NumberFormat;
-import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by eric on 10/22/16.
@@ -33,14 +43,32 @@ public class BudgetFragment extends TXFragment {
 
 		((TXRecyclerView) view.findViewById(R.id.budgetRecyclerView)).setAdapter(adapter);
 
-		loadCategories(adapter);
+		loadCategories();
 		return view;
 	}
 
-	private void loadCategories(BudgetAdapter adapter) {
-		List<Category> categories = Arrays.asList(new Category(0, "Food", null, 300.25, 0, 500),
-				new Category(1, "Misc", null, 153.62, 0, 500));
-		adapter.setList(categories);
+	private void loadCategories() {
+		Client.Api api = (Client.Api) TXApiGenerator.createApi(getActivity(), new Client());
+
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(new Date());
+		int month = cal.get(Calendar.MONTH) + 1;
+		int year = cal.get(Calendar.YEAR);
+
+		Call<List<Category>> call = api.getCategories(null, month, year);
+
+		call.enqueue(new TXCallback<List<Category>>() {
+			@Override
+			public void onSuccess(Call<List<Category>> call, Response<List<Category>> response) {
+				adapter.setList(response.body());
+			}
+
+			@Override
+			public void onFailure(Call<List<Category>> call, Exception byuError) {
+				((TXActivity) getActivity()).showErrorDialog(byuError.getMessage());
+			}
+		});
+
 	}
 
 	@Override

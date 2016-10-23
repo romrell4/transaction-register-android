@@ -20,8 +20,6 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		setTitle("Transaction Register");
-
 		ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
 		viewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager(),  new TXFragment[] {new BudgetFragment(), new TransactionsFragment()}));
 
