@@ -2,8 +2,12 @@ package com.transactionregister.eric.transactionregisterandroid.Controller;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -25,11 +29,10 @@ import java.util.Date;
 import java.util.List;
 
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
- * Created by eric on 10/22/16.
+ * Created by eric on 10/22/16
  */
 
 public class BudgetFragment extends TXFragment {
@@ -78,7 +81,7 @@ public class BudgetFragment extends TXFragment {
 
 	private class BudgetAdapter extends TXRecyclerAdapter<Category> {
 
-		public BudgetAdapter(List<Category> list) {
+		BudgetAdapter(List<Category> list) {
 			super(list);
 		}
 
@@ -91,7 +94,7 @@ public class BudgetFragment extends TXFragment {
 			private TextView textView;
 			private TextView detailTextView;
 
-			public CategoryViewHolder(View itemView) {
+			CategoryViewHolder(View itemView) {
 				super(itemView);
 				textView = (TextView) itemView.findViewById(R.id.textView);
 				detailTextView = (TextView) itemView.findViewById(R.id.detailTextView);
@@ -102,10 +105,13 @@ public class BudgetFragment extends TXFragment {
 				NumberFormat format = NumberFormat.getCurrencyInstance();
 				textView.setText(data.getName());
 				detailTextView.setText(format.format(data.getAmountSpent()));
-				detailTextView.setTextColor(data.getAmountSpent() <= data.getAmountBudgeted() ?
-						getResources().getColor(R.color.green) :
-						getResources().getColor(R.color.red));
-
+				if (data.getAmountBudgeted() == 0) {
+					detailTextView.setTextColor(ContextCompat.getColor(getActivity(), R.color.black));
+				} else {
+					detailTextView.setTextColor(data.getAmountSpent() <= data.getAmountBudgeted() ?
+							ContextCompat.getColor(getActivity(), R.color.green) :
+							ContextCompat.getColor(getActivity(), R.color.red));
+				}
 			}
 		}
 	}

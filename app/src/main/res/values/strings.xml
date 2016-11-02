@@ -1,3 +1,4 @@
 <resources>
 	<string name="app_name">Transaction Register</string>
+	<string name="filter_title">Filter</string>
 </resources>
