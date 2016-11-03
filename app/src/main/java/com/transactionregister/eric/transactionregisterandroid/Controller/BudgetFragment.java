@@ -3,11 +3,7 @@ package com.transactionregister.eric.transactionregisterandroid.Controller;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -25,7 +21,6 @@ import com.transactionregister.eric.transactionregisterandroid.Support.TXViewHol
 
 import java.text.NumberFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import retrofit2.Call;
@@ -78,6 +73,7 @@ public class BudgetFragment extends TXFragment {
 	}
 
 	private class BudgetAdapter extends TXRecyclerAdapter<Category> {
+		private NumberFormat format = NumberFormat.getCurrencyInstance();
 
 		BudgetAdapter(List<Category> list) {
 			super(list);
@@ -100,7 +96,6 @@ public class BudgetFragment extends TXFragment {
 
 			@Override
 			public void bind(Category data) {
-				NumberFormat format = NumberFormat.getCurrencyInstance();
 				textView.setText(data.getName());
 				detailTextView.setText(format.format(data.getAmountSpent()));
 				if (data.getAmountBudgeted() == 0) {

@@ -12,7 +12,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Query;
 
 /**
- * Created by eric on 10/23/16.
+ * Created by eric on 10/23/16
  */
 
 public class Client extends TXClient {

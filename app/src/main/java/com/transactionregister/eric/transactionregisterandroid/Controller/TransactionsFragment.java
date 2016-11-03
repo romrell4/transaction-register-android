@@ -20,10 +20,13 @@ import com.transactionregister.eric.transactionregisterandroid.Support.TXRecycle
 import com.transactionregister.eric.transactionregisterandroid.Support.TXViewHolder;
 
 import java.io.IOException;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -56,23 +59,24 @@ public class TransactionsFragment extends TXFragment {
 		Client.Api api = (Client.Api) TXApiGenerator.createApi(getActivity(), new Client());
 
 		Calendar cal = Calendar.getInstance();
-		Call<List<Transaction>> call = api.getTransactions(null, cal.get(Calendar.MONTH) + 1, cal.get(Calendar.YEAR));
+		Call<List<Transaction>> call = api.getTransactions(null, /*cal.get(Calendar.MONTH) + 1*/ null, cal.get(Calendar.YEAR));
 		call.enqueue(new TXCallback<List<Transaction>>() {
 			@Override
 			public void onSuccess(Call<List<Transaction>> call, Response<List<Transaction>> response) {
-				Log.d(TAG, "onSuccess: ");
 				adapter.setList(response.body());
 			}
 
 			@Override
 			public void onFailure(Call<List<Transaction>> call, Exception byuError) {
-				Log.d(TAG, "onFailure: ");
 				((TXActivity) getActivity()).showErrorDialog(byuError.getMessage());
 			}
 		});
 	}
 
 	private class TransactionsAdapter extends TXRecyclerAdapter<Transaction> {
+		private SimpleDateFormat format = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
+		private NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
+
 
 		TransactionsAdapter(List<Transaction> list) {
 			super(list);
@@ -91,10 +95,18 @@ public class TransactionsFragment extends TXFragment {
 
 			TransactionViewHolder(View itemView) {
 				super(itemView);
+				businessTextView = (TextView) itemView.findViewById(R.id.businessTextView);
+				dateTextView = (TextView) itemView.findViewById(R.id.dateTextView);
+				amountTextView = (TextView) itemView.findViewById(R.id.amountTextView);
+				categoryTextView = (TextView) itemView.findViewById(R.id.categoryTextView);
 			}
 
 			@Override
 			public void bind(Transaction data) {
+				businessTextView.setText(data.getBusiness());
+				dateTextView.setText(format.format(data.getPurchaseDate()));
+				amountTextView.setText(numberFormat.format(data.getAmount()));
+				categoryTextView.setText(data.getCategoryName());
 			}
 		}
 	}

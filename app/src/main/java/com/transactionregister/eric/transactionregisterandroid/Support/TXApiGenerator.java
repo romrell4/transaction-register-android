@@ -23,7 +23,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
- * Created by eric on 10/23/16.
+ * Created by eric on 10/23/16
  */
 
 public class TXApiGenerator {
