@@ -1,13 +1,19 @@
 package com.transactionregister.eric.transactionregisterandroid.Controller;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.transactionregister.eric.transactionregisterandroid.Model.PaymentType;
 import com.transactionregister.eric.transactionregisterandroid.Model.Transaction;
 import com.transactionregister.eric.transactionregisterandroid.R;
 import com.transactionregister.eric.transactionregisterandroid.Service.Client;
@@ -19,12 +25,11 @@ import com.transactionregister.eric.transactionregisterandroid.Support.TXRecycle
 import com.transactionregister.eric.transactionregisterandroid.Support.TXRecyclerView;
 import com.transactionregister.eric.transactionregisterandroid.Support.TXViewHolder;
 
-import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,6 +43,7 @@ import retrofit2.Response;
 public class TransactionsFragment extends TXFragment {
 	private static final String TAG = TransactionsFragment.class.getSimpleName();
 	private TransactionsAdapter adapter = new TransactionsAdapter(null);
+	private PaymentType filterType;
 
 	@Override
 	public String getTitle() {
@@ -50,16 +56,61 @@ public class TransactionsFragment extends TXFragment {
 		View view = inflater.inflate(R.layout.fragment_transactions, container, false);
 
 		((TXRecyclerView) view.findViewById(R.id.transactionsRecyclerView)).setAdapter(adapter);
+		view.findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				Log.d(TAG, "onClick: ");
+			}
+		});
+
+		setHasOptionsMenu(true);
 
 		loadData();
 		return view;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.menu_filter) {
+			final List<PaymentType> paymentTypes = Arrays.asList(PaymentType.values());
+			String[] items = new String[paymentTypes.size()];
+			for (int i = 0; i < paymentTypes.size(); i++) {
+				items[i] = paymentTypes.get(i).getName();
+			}
+
+			new AlertDialog.Builder(getActivity())
+					.setSingleChoiceItems(items, paymentTypes.indexOf(filterType), new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialogInterface, int i) {
+							filterType = paymentTypes.get(i);
+						}
+					})
+					.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialogInterface, int i) {
+							loadData();
+						}
+					})
+					.setNegativeButton("Clear", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialogInterface, int i) {
+							if (filterType != null) {
+								filterType = null;
+								loadData();
+							}
+						}
+					})
+					.setTitle("What account would you like to filter by?")
+					.show();
+		}
+		return true;
 	}
 
 	private void loadData() {
 		Client.Api api = (Client.Api) TXApiGenerator.createApi(getActivity(), new Client());
 
 		Calendar cal = Calendar.getInstance();
-		Call<List<Transaction>> call = api.getTransactions(null, /*cal.get(Calendar.MONTH) + 1*/ null, cal.get(Calendar.YEAR));
+		Call<List<Transaction>> call = api.getTransactions(filterType, cal.get(Calendar.MONTH) + 1, null);//cal.get(Calendar.YEAR));
 		call.enqueue(new TXCallback<List<Transaction>>() {
 			@Override
 			public void onSuccess(Call<List<Transaction>> call, Response<List<Transaction>> response) {
@@ -76,7 +127,6 @@ public class TransactionsFragment extends TXFragment {
 	private class TransactionsAdapter extends TXRecyclerAdapter<Transaction> {
 		private SimpleDateFormat format = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
 		private NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
-
 
 		TransactionsAdapter(List<Transaction> list) {
 			super(list);
