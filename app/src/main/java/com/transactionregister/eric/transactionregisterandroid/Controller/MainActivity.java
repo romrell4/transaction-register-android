@@ -10,9 +10,10 @@ import android.os.Bundle;
 import android.view.Menu;
 
 import com.transactionregister.eric.transactionregisterandroid.R;
+import com.transactionregister.eric.transactionregisterandroid.Support.TXActivity;
 import com.transactionregister.eric.transactionregisterandroid.Support.TXFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends TXActivity {
 	private static final String TAG = MainActivity.class.getSimpleName();
 
 	@Override

@@ -1,5 +1,7 @@
 package com.transactionregister.eric.transactionregisterandroid.Support;
 
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,6 +16,7 @@ import retrofit2.Response;
  */
 
 public abstract class TXCallback<T> implements Callback<T> {
+	private static final String TAG = TXCallback.class.getSimpleName();
 	private static final String DEFAULT_ERROR_MESSAGE = "There was an error loading the data from the service. Please talk to your husband about it. :)";
 
 	@Override
@@ -27,7 +30,8 @@ public abstract class TXCallback<T> implements Callback<T> {
 
 	@Override
 	public void onFailure(Call<T> call, Throwable t) {
-
+		Log.e(TAG, "Error!", t);
+		onFailure(call, new Exception(DEFAULT_ERROR_MESSAGE, t));
 	}
 
 	public abstract void onSuccess(Call<T> call, Response<T> response);

@@ -54,12 +54,10 @@ public class BudgetFragment extends TXFragment {
 		Client.Api api = (Client.Api) TXApiGenerator.createApi(getActivity(), new Client());
 
 		Calendar cal = Calendar.getInstance();
-		cal.setTime(new Date());
 		int month = cal.get(Calendar.MONTH) + 1;
 		int year = cal.get(Calendar.YEAR);
 
 		Call<List<Category>> call = api.getCategories(null, month, year);
-
 		call.enqueue(new TXCallback<List<Category>>() {
 			@Override
 			public void onSuccess(Call<List<Category>> call, Response<List<Category>> response) {
