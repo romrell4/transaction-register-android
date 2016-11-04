@@ -1,10 +1,13 @@
 package com.transactionregister.eric.transactionregisterandroid.Model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by eric on 10/22/16.
  */
 
-public class Category {
+public class Category implements Parcelable {
 	private int categoryId;
 	private String name;
 	private String month;
@@ -12,21 +15,13 @@ public class Category {
 	private double amountLeft;
 	private double amountBudgeted;
 
-	public Category(int categoryId, String name, String month, double amountSpent, double amountLeft, double amountBudgeted) {
-		this.categoryId = categoryId;
-		this.name = name;
-		this.month = month;
-		this.amountSpent = amountSpent;
-		this.amountLeft = amountLeft;
-		this.amountBudgeted = amountBudgeted;
-	}
-
-	public int getCategoryId() {
-		return categoryId;
-	}
-
-	public void setCategoryId(int categoryId) {
-		this.categoryId = categoryId;
+	private Category(Parcel parcel) {
+		this.categoryId = parcel.readInt();
+		this.name = parcel.readString();
+		this.month = parcel.readString();
+		this.amountSpent = parcel.readDouble();
+		this.amountLeft = parcel.readDouble();
+		this.amountBudgeted = parcel.readDouble();
 	}
 
 	public String getName() {
@@ -37,36 +32,44 @@ public class Category {
 		this.name = name;
 	}
 
-	public String getMonth() {
-		return month;
-	}
-
-	public void setMonth(String month) {
-		this.month = month;
-	}
-
 	public double getAmountSpent() {
 		return amountSpent;
-	}
-
-	public void setAmountSpent(double amountSpent) {
-		this.amountSpent = amountSpent;
-	}
-
-	public double getAmountLeft() {
-		return amountLeft;
-	}
-
-	public void setAmountLeft(double amountLeft) {
-		this.amountLeft = amountLeft;
 	}
 
 	public double getAmountBudgeted() {
 		return amountBudgeted;
 	}
 
-	public void setAmountBudgeted(double amountBudgeted) {
-		this.amountBudgeted = amountBudgeted;
+	@Override
+	public int describeContents() {
+		return 0;
 	}
 
+	@Override
+	public void writeToParcel(Parcel parcel, int i) {
+		parcel.writeInt(categoryId);
+		parcel.writeString(name);
+		parcel.writeString(month);
+		parcel.writeDouble(amountSpent);
+		parcel.writeDouble(amountLeft);
+		parcel.writeDouble(amountBudgeted);
+	}
+
+	public static final Creator CREATOR = new Creator<Category>() {
+
+		@Override
+		public Category createFromParcel(Parcel parcel) {
+			return new Category(parcel);
+		}
+
+		@Override
+		public Category[] newArray(int i) {
+			return new Category[i];
+		}
+	};
+
+	@Override
+	public String toString() {
+		return name;
+	}
 }

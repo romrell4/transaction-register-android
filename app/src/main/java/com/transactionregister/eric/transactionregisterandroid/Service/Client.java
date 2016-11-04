@@ -8,7 +8,9 @@ import com.transactionregister.eric.transactionregisterandroid.Support.TXClient;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Query;
 
 /**
@@ -28,10 +30,16 @@ public class Client extends TXClient {
 
 	public interface Api {
 		@GET("categories")
-		Call<List<Category>> getCategories(@Query("categoryId") Integer categoryId, @Query("month") Integer month, @Query("year") Integer year);
+		Call<List<Category>> getBudget(@Query("categoryId") Integer categoryId, @Query("month") Integer month, @Query("year") Integer year);
+
+		@GET("categories/active")
+		Call<List<Category>> getActiveCategories();
 
 		@GET("transactions")
 		Call<List<Transaction>> getTransactions(@Query("type") PaymentType paymentType, @Query("month") Integer month, @Query("year") Integer year);
+
+		@POST("transactions")
+		Call<Transaction> createTransaction(@Body Transaction transaction);
 
 		@GET("transactions/sums")
 		Call<Object> getSums();

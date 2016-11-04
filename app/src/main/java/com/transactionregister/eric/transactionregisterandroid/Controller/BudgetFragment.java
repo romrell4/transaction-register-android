@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.transactionregister.eric.transactionregisterandroid.Model.Category;
@@ -23,7 +22,6 @@ import com.transactionregister.eric.transactionregisterandroid.Support.TXRecycle
 import com.transactionregister.eric.transactionregisterandroid.Support.TXRecyclerView;
 import com.transactionregister.eric.transactionregisterandroid.Support.TXViewHolder;
 
-import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -108,8 +106,8 @@ public class BudgetFragment extends TXFragment {
 
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(currentFilter);
-		Call<List<Category>> call = api.getCategories(null, cal.get(Calendar.MONTH) + 1, cal.get(Calendar.YEAR));
-		call.enqueue(new TXCallback<List<Category>>() {
+		Call<List<Category>> call = api.getBudget(null, cal.get(Calendar.MONTH) + 1, cal.get(Calendar.YEAR));
+		call.enqueue(new TXCallback<List<Category>>(getActivity()) {
 			@Override
 			public void onSuccess(Call<List<Category>> call, Response<List<Category>> response) {
 				adapter.setList(response.body());

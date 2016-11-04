@@ -16,35 +16,39 @@ public class Transaction {
 	private String categoryName;
 	private String description;
 
-	public int getTransactionId() {
-		return transactionId;
-	}
-
-	public PaymentType getPaymentType() {
-		return paymentType;
+	public void setPaymentType(PaymentType paymentType) {
+		this.paymentType = paymentType;
 	}
 
 	public Date getPurchaseDate() {
 		return purchaseDate;
 	}
 
+	public void setPurchaseDate(Date purchaseDate) {
+		this.purchaseDate = purchaseDate;
+	}
+
 	public String getBusiness() {
 		return business;
+	}
+
+	public void setBusiness(String business) {
+		this.business = business;
 	}
 
 	public double getAmount() {
 		return amount;
 	}
 
-	public int getCategoryId() {
-		return categoryId;
+	public void setAmount(double amount) {
+		this.amount = amount;
 	}
 
 	public String getCategoryName() {
 		return categoryName;
 	}
 
-	public String getDescription() {
-		return description;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

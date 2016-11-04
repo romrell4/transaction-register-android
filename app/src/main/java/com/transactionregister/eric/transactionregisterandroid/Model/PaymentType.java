@@ -11,7 +11,7 @@ public enum PaymentType {
 	CREDIT("Credit"),
 	DEBIT("Debit"),
 	SAVINGS("Savings"),
-	PERMANENT_SAVINGS("Permanent Savings");
+	PERMANENT_SAVINGS("Italy");
 
 	private String name;
 

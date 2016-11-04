@@ -1,4 +1,9 @@
 <resources>
 	<string name="app_name">Transaction Register</string>
 	<string name="filter_title">Filter</string>
+	<string name="businessHint">Business</string>
+	<string name="dateHint">Date (mm/dd/yyyy)</string>
+	<string name="amountHint">Amount</string>
+	<string name="categoryHint">Category</string>
+	<string name="descriptionHint">Description</string>
 </resources>

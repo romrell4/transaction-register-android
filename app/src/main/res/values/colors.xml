@@ -6,8 +6,12 @@
 	<color name="colorAccent">#7C4DFF</color>
 	<color name="white">#FFF</color>
 	<color name="black">#000</color>
+
 	<color name="green">#009900</color>
 	<color name="red">#FF0000</color>
+
 	<color name="textDark">#FF212121</color>
 	<color name="textLight">#70000000</color>
+
+	<color name="dialogBackground">#EEE</color>
 </resources>

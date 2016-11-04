@@ -3,6 +3,7 @@ package com.transactionregister.eric.transactionregisterandroid.Controller;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.transactionregister.eric.transactionregisterandroid.Model.Category;
 import com.transactionregister.eric.transactionregisterandroid.Model.PaymentType;
 import com.transactionregister.eric.transactionregisterandroid.Model.Transaction;
 import com.transactionregister.eric.transactionregisterandroid.R;
@@ -24,6 +26,7 @@ import com.transactionregister.eric.transactionregisterandroid.Support.TXViewHol
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -33,13 +36,14 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 /**
- * Created by eric on 10/22/16.
+ * Created by eric on 10/22/16
  */
 
 public class TransactionsFragment extends TXFragment {
 	private static final String TAG = TransactionsFragment.class.getSimpleName();
 	private TransactionsAdapter adapter = new TransactionsAdapter(null);
 	private PaymentType filterType;
+	private List<Category> activeCategories;
 
 	@Override
 	public String getTitle() {
@@ -51,11 +55,33 @@ public class TransactionsFragment extends TXFragment {
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_transactions, container, false);
 
+		Client.Api api = (Client.Api) TXApiGenerator.createApi(getActivity(), new Client());
+		Call<List<Category>> call = api.getActiveCategories();
+		call.enqueue(new TXCallback<List<Category>>(getActivity()) {
+			@Override
+			public void onSuccess(Call<List<Category>> call, Response<List<Category>> response) {
+				activeCategories = response.body();
+			}
+
+			@Override
+			public void onFailure(Call<List<Category>> call, Exception byuError) {
+				//TODO: display error or something
+			}
+		});
+
 		((TXRecyclerView) view.findViewById(R.id.transactionsRecyclerView)).setAdapter(adapter);
 		view.findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				//TODO: Add transaction dialog
+				Bundle bundle = new Bundle();
+				if (filterType != null) {
+					bundle.putInt(AddTransactionDialog.DEFAULT_PAYMENT_TYPE, filterType.ordinal());
+				}
+				bundle.putParcelableArrayList(AddTransactionDialog.CATEGORIES, (ArrayList<Category>) activeCategories);
+
+				AddTransactionDialog dialog = new AddTransactionDialog();
+				dialog.setArguments(bundle);
+				dialog.show(getFragmentManager(), null);
 			}
 		});
 
@@ -107,7 +133,7 @@ public class TransactionsFragment extends TXFragment {
 
 		Calendar cal = Calendar.getInstance();
 		Call<List<Transaction>> call = api.getTransactions(filterType, cal.get(Calendar.MONTH) + 1, null);//cal.get(Calendar.YEAR));
-		call.enqueue(new TXCallback<List<Transaction>>() {
+		call.enqueue(new TXCallback<List<Transaction>>(getActivity()) {
 			@Override
 			public void onSuccess(Call<List<Transaction>> call, Response<List<Transaction>> response) {
 				adapter.setList(response.body());
