@@ -1,16 +1,13 @@
 package com.transactionregister.eric.transactionregisterandroid.Controller;
 
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.transactionregister.eric.transactionregisterandroid.Model.PaymentType;
@@ -27,7 +24,6 @@ import com.transactionregister.eric.transactionregisterandroid.Support.TXViewHol
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -59,7 +55,7 @@ public class TransactionsFragment extends TXFragment {
 		view.findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				Log.d(TAG, "onClick: ");
+				//TODO: Add transaction dialog
 			}
 		});
 

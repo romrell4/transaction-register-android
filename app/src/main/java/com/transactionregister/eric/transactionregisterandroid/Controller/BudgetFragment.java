@@ -1,11 +1,15 @@
 package com.transactionregister.eric.transactionregisterandroid.Controller;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.transactionregister.eric.transactionregisterandroid.Model.Category;
@@ -19,9 +23,14 @@ import com.transactionregister.eric.transactionregisterandroid.Support.TXRecycle
 import com.transactionregister.eric.transactionregisterandroid.Support.TXRecyclerView;
 import com.transactionregister.eric.transactionregisterandroid.Support.TXViewHolder;
 
+import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -32,7 +41,22 @@ import retrofit2.Response;
 
 public class BudgetFragment extends TXFragment {
 	private static final String TAG = BudgetFragment.class.getSimpleName();
+	private static final int MONTHS_TO_SHOW = 6;
 	private final BudgetAdapter adapter = new BudgetAdapter(null);
+	private static final List<Date> filterDates = getDateList();
+	private static Date currentFilter = new Date();
+
+	private static List<Date> getDateList() {
+		List<Date> dates = new ArrayList<>(MONTHS_TO_SHOW);
+
+		Calendar cal = Calendar.getInstance();
+		currentFilter = cal.getTime();
+		for (int i = 0; i <= MONTHS_TO_SHOW; i++) {
+			dates.add(cal.getTime());
+			cal.add(Calendar.MONTH, -1);
+		}
+		return dates;
+	}
 
 	@Nullable
 	@Override
@@ -41,18 +65,50 @@ public class BudgetFragment extends TXFragment {
 
 		((TXRecyclerView) view.findViewById(R.id.budgetRecyclerView)).setAdapter(adapter);
 
+		setHasOptionsMenu(true);
+
 		loadCategories();
 		return view;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.menu_filter) {
+			SimpleDateFormat format = new SimpleDateFormat("MMMM yyyy", Locale.US);
+			String[] items = new String[filterDates.size()];
+			for (int i = 0; i < items.length; i++) {
+				items[i] = format.format(filterDates.get(i));
+			}
+			new AlertDialog.Builder(getActivity())
+					.setSingleChoiceItems(items, filterDates.indexOf(currentFilter), new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialogInterface, int i) {
+							currentFilter = filterDates.get(i);
+						}
+					})
+					.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialogInterface, int i) {
+							loadCategories();
+						}
+					})
+					.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialogInterface, int i) {
+							currentFilter = null;
+						}
+					})
+					.show();
+		}
+		return true;
 	}
 
 	private void loadCategories() {
 		Client.Api api = (Client.Api) TXApiGenerator.createApi(getActivity(), new Client());
 
 		Calendar cal = Calendar.getInstance();
-		int month = cal.get(Calendar.MONTH) + 1;
-		int year = cal.get(Calendar.YEAR);
-
-		Call<List<Category>> call = api.getCategories(null, month, year);
+		cal.setTime(currentFilter);
+		Call<List<Category>> call = api.getCategories(null, cal.get(Calendar.MONTH) + 1, cal.get(Calendar.YEAR));
 		call.enqueue(new TXCallback<List<Category>>() {
 			@Override
 			public void onSuccess(Call<List<Category>> call, Response<List<Category>> response) {
