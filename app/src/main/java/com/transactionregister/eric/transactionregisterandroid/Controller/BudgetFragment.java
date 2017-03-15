@@ -102,23 +102,21 @@ public class BudgetFragment extends TXFragment {
 	}
 
 	private void loadCategories() {
-		Client.Api api = (Client.Api) TXApiGenerator.createApi(getActivity(), new Client());
+		Client.Api api = TXApiGenerator.createApi(getActivity(), new Client());
 
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(currentFilter);
-		Call<List<Category>> call = api.getBudget(null, cal.get(Calendar.MONTH) + 1, cal.get(Calendar.YEAR));
-		call.enqueue(new TXCallback<List<Category>>(getActivity()) {
+		enqueueCall(api.getBudget(null, cal.get(Calendar.MONTH) + 1, cal.get(Calendar.YEAR)), new TXCallback<List<Category>>(this) {
 			@Override
 			public void onSuccess(Call<List<Category>> call, Response<List<Category>> response) {
 				adapter.setList(response.body());
 			}
 
 			@Override
-			public void onFailure(Call<List<Category>> call, Exception byuError) {
-				((TXActivity) getActivity()).showErrorDialog(byuError.getMessage());
+			public void onFailure(Call<List<Category>> call, Exception error) {
+				showErrorDialog(error.getMessage());
 			}
 		});
-
 	}
 
 	@Override

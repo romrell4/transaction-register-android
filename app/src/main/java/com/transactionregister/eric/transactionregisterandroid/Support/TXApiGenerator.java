@@ -27,7 +27,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class TXApiGenerator {
-	public static <C extends TXClient> Object createApi(Context context, C client) {
+	public static <C extends TXClient, Api> Api createApi(Context context, C client) {
 		Retrofit retrofit = new Retrofit.Builder()
 				.baseUrl(client.getBaseUrl())
 				.addConverterFactory(GsonConverterFactory.create(new GsonBuilder()
@@ -36,7 +36,7 @@ public class TXApiGenerator {
 				.client(createClient())
 				.build();
 
-		return retrofit.create(client.getApi());
+		return (Api) retrofit.create(client.getApi());
 	}
 
 	private static OkHttpClient createClient() {

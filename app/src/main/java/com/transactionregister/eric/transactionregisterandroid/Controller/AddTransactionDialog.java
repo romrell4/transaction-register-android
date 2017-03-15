@@ -19,7 +19,9 @@ import com.transactionregister.eric.transactionregisterandroid.Model.PaymentType
 import com.transactionregister.eric.transactionregisterandroid.Model.Transaction;
 import com.transactionregister.eric.transactionregisterandroid.R;
 import com.transactionregister.eric.transactionregisterandroid.Service.Client;
+import com.transactionregister.eric.transactionregisterandroid.Support.TXActivity;
 import com.transactionregister.eric.transactionregisterandroid.Support.TXApiGenerator;
+import com.transactionregister.eric.transactionregisterandroid.Support.TXCallManager;
 import com.transactionregister.eric.transactionregisterandroid.Support.TXCallback;
 
 import java.text.NumberFormat;
@@ -44,8 +46,9 @@ public class AddTransactionDialog extends DialogFragment {
 	@NonNull
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
+		final TXActivity activity = (TXActivity) getActivity();
 
-		final View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_add_transaction, null);
+		final View view = LayoutInflater.from(activity).inflate(R.layout.dialog_add_transaction, null);
 
 		//Create a tab for each payment type
 		TabLayout tabs = (TabLayout) view.findViewById(R.id.paymentTypes);
@@ -63,10 +66,10 @@ public class AddTransactionDialog extends DialogFragment {
 		final List<Category> categories = getArguments().getParcelableArrayList(CATEGORIES);
 		if (categories == null) { throw new RuntimeException("Categories not loaded properly");	}
 		Spinner categorySpinner = (Spinner) view.findViewById(R.id.categorySpinner);
-		categorySpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, categories));
+		categorySpinner.setAdapter(new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, categories));
 
 		//Create dialog from inflated view
-		AlertDialog dialog = new AlertDialog.Builder(getActivity())
+		AlertDialog dialog = new AlertDialog.Builder(activity)
 				.setView(view)
 				.setPositiveButton("Add", new DialogInterface.OnClickListener() {
 					@Override
@@ -81,17 +84,16 @@ public class AddTransactionDialog extends DialogFragment {
 			public void onClick(View _) {
 				Transaction newTx = getTransactionIfValid(view, categories);
 				if (newTx != null) {
-					Client.Api api = (Client.Api) TXApiGenerator.createApi(getActivity(), new Client());
-					Call<Transaction> call = api.createTransaction(newTx);
-					call.enqueue(new TXCallback<Transaction>(getActivity()) {
+					Client.Api api = TXApiGenerator.createApi(activity, new Client());
+					activity.enqueueCall(api.createTransaction(newTx), new TXCallback<Transaction>(activity) {
 						@Override
 						public void onSuccess(Call<Transaction> call, Response<Transaction> response) {
-							Toast.makeText(getActivity(), "Transaction Created!", Toast.LENGTH_SHORT).show();
+							Toast.makeText(activity, "Transaction Created!", Toast.LENGTH_SHORT).show();
 						}
 
 						@Override
-						public void onFailure(Call<Transaction> call, Exception byuError) {
-							//TODO: Display error
+						public void onFailure(Call<Transaction> call, Exception error) {
+							activity.showErrorDialog(error.getMessage());
 						}
 					});
 					dismiss();

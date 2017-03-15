@@ -38,4 +38,19 @@ public abstract class TXRecyclerAdapter<DataType> extends RecyclerView.Adapter<T
 	public int getItemCount() {
 		return list == null ? 0 : list.size();
 	}
+
+	protected void addAllToList(List<DataType> list) {
+		this.list.addAll(list);
+		notifyItemRangeInserted(this.list.size(), list.size());
+	}
+
+	protected void addAllToList(int position, List<DataType> list) {
+		this.list.addAll(position, list);
+		notifyItemRangeInserted(position, list.size());
+	}
+
+	protected void remove(int position) {
+		list.remove(position);
+		notifyItemRemoved(position);
+	}
 }

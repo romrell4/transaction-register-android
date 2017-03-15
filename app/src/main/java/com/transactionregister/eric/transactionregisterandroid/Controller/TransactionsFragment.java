@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.ViewUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -41,9 +43,12 @@ import retrofit2.Response;
 
 public class TransactionsFragment extends TXFragment {
 	private static final String TAG = TransactionsFragment.class.getSimpleName();
-	private TransactionsAdapter adapter = new TransactionsAdapter(null);
+	private TransactionsAdapter adapter = new TransactionsAdapter();
 	private PaymentType filterType;
 	private List<Category> activeCategories;
+	private Client.Api api;
+	private Calendar queryCalendar = Calendar.getInstance();
+	private Calendar stopCalendar = new GregorianCalendar(2014, 10, 1);
 
 	@Override
 	public String getTitle() {
@@ -55,17 +60,16 @@ public class TransactionsFragment extends TXFragment {
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_transactions, container, false);
 
-		Client.Api api = (Client.Api) TXApiGenerator.createApi(getActivity(), new Client());
-		Call<List<Category>> call = api.getActiveCategories();
-		call.enqueue(new TXCallback<List<Category>>(getActivity()) {
+		api = TXApiGenerator.createApi(getActivity(), new Client());
+		enqueueCall(api.getActiveCategories(), new TXCallback<List<Category>>(this) {
 			@Override
 			public void onSuccess(Call<List<Category>> call, Response<List<Category>> response) {
 				activeCategories = response.body();
 			}
 
 			@Override
-			public void onFailure(Call<List<Category>> call, Exception byuError) {
-				//TODO: display error or something
+			public void onFailure(Call<List<Category>> call, Exception error) {
+				showErrorDialog(error.getMessage());
 			}
 		});
 
@@ -129,34 +133,97 @@ public class TransactionsFragment extends TXFragment {
 	}
 
 	private void loadData() {
-		Client.Api api = (Client.Api) TXApiGenerator.createApi(getActivity(), new Client());
-
-		Calendar cal = Calendar.getInstance();
-		Call<List<Transaction>> call = api.getTransactions(filterType, cal.get(Calendar.MONTH) + 1, null);//cal.get(Calendar.YEAR));
-		call.enqueue(new TXCallback<List<Transaction>>(getActivity()) {
+		enqueueCall(api.getTransactions(filterType, queryCalendar.get(Calendar.MONTH) + 1, queryCalendar.get(Calendar.YEAR)), new TXCallback<List<Transaction>>(this) {
 			@Override
 			public void onSuccess(Call<List<Transaction>> call, Response<List<Transaction>> response) {
-				adapter.setList(response.body());
+				adapter.setFirstPage(response.body());
 			}
 
 			@Override
-			public void onFailure(Call<List<Transaction>> call, Exception byuError) {
-				((TXActivity) getActivity()).showErrorDialog(byuError.getMessage());
+			public void onFailure(Call<List<Transaction>> call, Exception error) {
+				showErrorDialog(error.getMessage());
+			}
+		});
+	}
+
+	private void loadMore() {
+		queryCalendar.add(Calendar.MONTH, -1);
+		enqueueCall(api.getTransactions(filterType, queryCalendar.get(Calendar.MONTH) + 1, queryCalendar.get(Calendar.YEAR)), new TXCallback<List<Transaction>>(this) {
+			@Override
+			public void onSuccess(Call<List<Transaction>> call, Response<List<Transaction>> response) {
+				adapter.addPage(response.body());
+			}
+
+			@Override
+			public void onFailure(Call<List<Transaction>> call, Exception error) {
+				showErrorDialog(error.getMessage());
 			}
 		});
 	}
 
 	private class TransactionsAdapter extends TXRecyclerAdapter<Transaction> {
+		private static final int LOADING_VIEW_TYPE = 0;
+		private static final int NOT_LOADING_VIEW_TYPE = 1;
+
+		private boolean isLoading;
+
 		private SimpleDateFormat format = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
 		private NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
 
-		TransactionsAdapter(List<Transaction> list) {
-			super(list);
+		TransactionsAdapter() {
+			super(null);
+		}
+
+		@Override
+		public int getItemViewType(int position) {
+			return get(position) == null ? LOADING_VIEW_TYPE : NOT_LOADING_VIEW_TYPE;
 		}
 
 		@Override
 		public TXViewHolder<Transaction> onCreateViewHolder(ViewGroup parent, int viewType) {
-			return new TransactionViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.transaction_row, parent, false));
+			if (viewType == LOADING_VIEW_TYPE) {
+				return new LoadingViewHolder(parent);
+			} else {
+				return new TransactionViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.transaction_row, parent, false));
+			}
+		}
+
+		void setFirstPage(List<Transaction> firstPage) {
+			firstPage.add(null);
+			setList(firstPage);
+		}
+
+		void addPage(List<Transaction> page) {
+			if (queryCalendar.before(stopCalendar)) {
+				stopLoading();
+				addAllToList(page);
+			} else {
+				int lastIndex = getItemCount() - 1;
+				addAllToList(lastIndex, page);
+				notifyItemChanged(lastIndex);
+			}
+			isLoading = false;
+		}
+
+		void stopLoading() {
+			int last = getItemCount() - 1;
+			if (get(last) == null) {
+				remove(last);
+			}
+		}
+
+		private class LoadingViewHolder extends TXViewHolder<Transaction> {
+			private LoadingViewHolder(ViewGroup parent) {
+				super(LayoutInflater.from(parent.getContext()).inflate(R.layout.loading_spinner, parent, false));
+			}
+
+			@Override
+			public void bind(Transaction data) {
+				if (!isLoading) {
+					isLoading = true;
+					loadMore();
+				}
+			}
 		}
 
 		private class TransactionViewHolder extends TXViewHolder<Transaction> {

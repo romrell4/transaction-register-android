@@ -7,11 +7,18 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import retrofit2.Call;
+
 /**
  * Created by eric on 10/22/16.
  */
 
-public class TXActivity extends AppCompatActivity {
+public class TXActivity extends AppCompatActivity implements TXCallManager {
+	private Set<Call> calls = new HashSet<>(INITIAL_CAPACITY);
+
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -28,5 +35,24 @@ public class TXActivity extends AppCompatActivity {
 						onBackPressed();
 					}
 				}).show();
+	}
+
+	@Override
+	public <T> void enqueueCall(Call<T> call, TXCallback<T> callback) {
+		calls.add(call);
+		call.enqueue(callback);
+	}
+
+	@Override
+	public void removeCall(Call call) {
+		calls.remove(call);
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		for (Call call : calls) {
+			call.cancel();
+		}
 	}
 }
