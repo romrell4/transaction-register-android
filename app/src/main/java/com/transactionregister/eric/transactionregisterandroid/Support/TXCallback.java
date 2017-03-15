@@ -22,7 +22,7 @@ public abstract class TXCallback<T> implements Callback<T> {
 	private static final String DEFAULT_ERROR_MESSAGE = "There was an error loading the data from the service. Please talk to your husband about it. :)";
 	private final TXCallManager callManager;
 
-	public TXCallback(TXCallManager callManager) {
+	protected TXCallback(TXCallManager callManager) {
 		this.callManager = callManager;
 	}
 

@@ -8,10 +8,7 @@ import com.transactionregister.eric.transactionregisterandroid.Support.TXClient;
 import java.util.List;
 
 import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.GET;
-import retrofit2.http.POST;
-import retrofit2.http.Query;
+import retrofit2.http.*;
 
 /**
  * Created by eric on 10/23/16
@@ -40,6 +37,9 @@ public class Client extends TXClient {
 
 		@POST("transactions")
 		Call<Transaction> createTransaction(@Body Transaction transaction);
+
+		@PUT("transactions/{id}")
+		Call<Transaction> editTransaction(@Path("id") Integer transactionId, @Body Transaction transaction);
 
 		@GET("transactions/sums")
 		Call<Object> getSums();

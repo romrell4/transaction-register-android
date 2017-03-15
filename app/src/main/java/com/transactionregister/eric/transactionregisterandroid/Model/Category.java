@@ -24,6 +24,10 @@ public class Category implements Parcelable {
 		this.amountBudgeted = parcel.readDouble();
 	}
 
+	public int getCategoryId() {
+		return categoryId;
+	}
+
 	public String getName() {
 		return name;
 	}

@@ -9,6 +9,7 @@
 
 	<color name="green">#009900</color>
 	<color name="red">#FF0000</color>
+	<color name="warning">#FFFFBF</color>
 
 	<color name="textDark">#FF212121</color>
 	<color name="textLight">#70000000</color>

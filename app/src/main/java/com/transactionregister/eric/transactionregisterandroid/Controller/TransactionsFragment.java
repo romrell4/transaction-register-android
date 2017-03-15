@@ -2,10 +2,13 @@ package com.transactionregister.eric.transactionregisterandroid.Controller;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.ViewUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -77,15 +80,7 @@ public class TransactionsFragment extends TXFragment {
 		view.findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				Bundle bundle = new Bundle();
-				if (filterType != null) {
-					bundle.putInt(AddTransactionDialog.DEFAULT_PAYMENT_TYPE, filterType.ordinal());
-				}
-				bundle.putParcelableArrayList(AddTransactionDialog.CATEGORIES, (ArrayList<Category>) activeCategories);
-
-				AddTransactionDialog dialog = new AddTransactionDialog();
-				dialog.setArguments(bundle);
-				dialog.show(getFragmentManager(), null);
+				popUp(null);
 			}
 		});
 
@@ -132,6 +127,21 @@ public class TransactionsFragment extends TXFragment {
 		return true;
 	}
 
+	private void popUp(Transaction transaction) {
+		Bundle bundle = new Bundle();
+		if (filterType != null) {
+			bundle.putInt(AddTransactionDialog.DEFAULT_PAYMENT_TYPE, filterType.ordinal());
+		}
+		if (transaction != null) {
+			bundle.putParcelable(AddTransactionDialog.TRANSACTION, transaction);
+		}
+		bundle.putParcelableArrayList(AddTransactionDialog.CATEGORIES, (ArrayList<Category>) activeCategories);
+
+		AddTransactionDialog dialog = new AddTransactionDialog();
+		dialog.setArguments(bundle);
+		dialog.show(getFragmentManager(), null);
+	}
+
 	private void loadData() {
 		enqueueCall(api.getTransactions(filterType, queryCalendar.get(Calendar.MONTH) + 1, queryCalendar.get(Calendar.YEAR)), new TXCallback<List<Transaction>>(this) {
 			@Override
@@ -166,9 +176,6 @@ public class TransactionsFragment extends TXFragment {
 		private static final int NOT_LOADING_VIEW_TYPE = 1;
 
 		private boolean isLoading;
-
-		private SimpleDateFormat format = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
-		private NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
 
 		TransactionsAdapter() {
 			super(null);
@@ -241,11 +248,24 @@ public class TransactionsFragment extends TXFragment {
 			}
 
 			@Override
-			public void bind(Transaction data) {
+			public void bind(final Transaction data) {
 				businessTextView.setText(data.getBusiness());
-				dateTextView.setText(format.format(data.getPurchaseDate()));
-				amountTextView.setText(numberFormat.format(data.getAmount()));
+				dateTextView.setText(data.getPrettyPurchaseDateString());
+				amountTextView.setText(data.getPrettyAmount());
 				categoryTextView.setText(data.getCategoryName());
+
+				if ("?".equals(data.getDescription())) {
+					itemView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.warning));
+				} else {
+					itemView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.white));
+				}
+
+				itemView.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						popUp(data);
+					}
+				});
 			}
 		}
 	}

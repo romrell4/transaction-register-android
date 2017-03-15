@@ -11,10 +11,8 @@
 		android:layout_height="wrap_content"
 		android:layout_centerVertical="true"
 		android:layout_alignParentStart="true"
-		android:layout_toStartOf="@+id/detailTextView"
 		android:textSize="16sp"
 		android:textColor="@color/textDark"
-		android:text="Text"
 		/>
 
 	<TextView
@@ -23,9 +21,11 @@
 		android:layout_height="wrap_content"
 		android:layout_centerVertical="true"
 		android:layout_alignParentEnd="true"
+		android:layout_toEndOf="@id/textView"
+		android:ellipsize="end"
+		android:gravity="end"
 		android:textSize="16sp"
 		android:textColor="@color/textLight"
-		android:text="Detail"
 		/>
 
 </RelativeLayout>

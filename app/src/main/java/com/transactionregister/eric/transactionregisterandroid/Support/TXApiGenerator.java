@@ -27,6 +27,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class TXApiGenerator {
+	@SuppressWarnings("unchecked")
 	public static <C extends TXClient, Api> Api createApi(Context context, C client) {
 		Retrofit retrofit = new Retrofit.Builder()
 				.baseUrl(client.getBaseUrl())
@@ -47,13 +48,14 @@ public class TXApiGenerator {
 
 	private static class DateAdapter extends TypeAdapter<Date> {
 		private static final String TAG = DateAdapter.class.getSimpleName();
+		private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.US);
 
 		@Override
 		public void write(JsonWriter out, Date value) throws IOException {
 			if (value == null) {
 				out.nullValue();
 			} else {
-				out.value(value.toString());
+				out.value(dateFormat.format(value));
 			}
 		}
 
@@ -64,8 +66,7 @@ public class TXApiGenerator {
 				return null;
 			} else {
 				try {
-					SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.US);
-					return format.parse(in.nextString());
+					return dateFormat.parse(in.nextString());
 				} catch (ParseException e) {
 					Log.e(TAG, "Failed to convert JSON date", e);
 					throw new IOException(e);
