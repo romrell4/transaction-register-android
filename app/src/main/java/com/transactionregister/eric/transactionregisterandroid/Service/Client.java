@@ -33,7 +33,7 @@ public class Client extends TXClient {
 		Call<List<Category>> getActiveCategories();
 
 		@GET("transactions")
-		Call<List<Transaction>> getTransactions(@Query("type") PaymentType paymentType, @Query("month") Integer month, @Query("year") Integer year);
+		Call<List<Transaction>> getTransactions(@Query("type") PaymentType paymentType, @Query("categoryId") Integer categoryId, @Query("month") Integer month, @Query("year") Integer year);
 
 		@POST("transactions")
 		Call<Transaction> createTransaction(@Body Transaction transaction);

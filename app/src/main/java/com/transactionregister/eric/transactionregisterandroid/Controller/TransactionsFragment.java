@@ -143,7 +143,7 @@ public class TransactionsFragment extends TXFragment {
 	}
 
 	private void loadData() {
-		enqueueCall(api.getTransactions(filterType, queryCalendar.get(Calendar.MONTH) + 1, queryCalendar.get(Calendar.YEAR)), new TXCallback<List<Transaction>>(this) {
+		enqueueCall(api.getTransactions(filterType, null, queryCalendar.get(Calendar.MONTH) + 1, queryCalendar.get(Calendar.YEAR)), new TXCallback<List<Transaction>>(this) {
 			@Override
 			public void onSuccess(Call<List<Transaction>> call, Response<List<Transaction>> response) {
 				adapter.setFirstPage(response.body());
@@ -158,7 +158,7 @@ public class TransactionsFragment extends TXFragment {
 
 	private void loadMore() {
 		queryCalendar.add(Calendar.MONTH, -1);
-		enqueueCall(api.getTransactions(filterType, queryCalendar.get(Calendar.MONTH) + 1, queryCalendar.get(Calendar.YEAR)), new TXCallback<List<Transaction>>(this) {
+		enqueueCall(api.getTransactions(filterType, null, queryCalendar.get(Calendar.MONTH) + 1, queryCalendar.get(Calendar.YEAR)), new TXCallback<List<Transaction>>(this) {
 			@Override
 			public void onSuccess(Call<List<Transaction>> call, Response<List<Transaction>> response) {
 				adapter.addPage(response.body());
