@@ -2,6 +2,7 @@ package com.transactionregister.eric.transactionregisterandroid.Controller;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -147,7 +148,7 @@ public class BudgetFragment extends TXFragment {
 			}
 
 			@Override
-			public void bind(Category data) {
+			public void bind(final Category data) {
 				textView.setText(data.getName());
 				detailTextView.setText(format.format(data.getAmountSpent()));
 				if (data.getAmountBudgeted() == 0) {
@@ -157,6 +158,19 @@ public class BudgetFragment extends TXFragment {
 							ContextCompat.getColor(getActivity(), R.color.green) :
 							ContextCompat.getColor(getActivity(), R.color.red));
 				}
+
+				itemView.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						Calendar cal = Calendar.getInstance();
+						cal.setTime(currentFilter);
+						startActivity(new Intent(getActivity(), CategoryActivity.class)
+								.putExtra(CategoryActivity.CATEGORY_ID, data.getCategoryId())
+								.putExtra(CategoryActivity.MONTH, cal.get(Calendar.MONTH) + 1)
+								.putExtra(CategoryActivity.YEAR, cal.get(Calendar.YEAR))
+						);
+					}
+				});
 			}
 		}
 	}
